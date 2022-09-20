@@ -6,3 +6,8 @@ If you have any suggestions put them in the issues tab.
 This CPU is a simpiler version of the 6502. I emulated most of the movement as MicroCode except for the ALU.
 
 JavaScript was never meant to handle this so your browser might crash.
+
+
+What you get in firefox
+![image](https://raw.githubusercontent.com/Richard5656/JS-24-Bit-CPU/main/Enviroment.JPG)
+
