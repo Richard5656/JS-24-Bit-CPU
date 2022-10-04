@@ -1,4 +1,3 @@
-
 //vm.js
 var entry_point = 5000;
 
@@ -380,7 +379,7 @@ function VM() {
     if (this.flags[1] != 1) {
       this.PC.in(this.addrbus);
       this.flags[2] = 1;
-      }
+            }
   }
 
   this.ADJM = () => {
@@ -396,30 +395,30 @@ function VM() {
 
     this.BP.out(this.databus);
     this.ram.in(this.SP, this.databus);
-      
+            
     this.SP.dec();
-      
-      
-      this.PC.inc();
+            
+            
+            this.PC.inc();
     this.PC.out(this.databus);
     this.ram.in(this.SP, this.databus);
    
-      this.SP.dec();
-      
-      this.PC.in(this.addrbus);
+            this.SP.dec();
+            
+            this.PC.in(this.addrbus);
     this.flags[2] = 1;
    
-      this.SP.out(this.addrbus);
+            this.SP.out(this.addrbus);
     this.BP.in(this.addrbus);
 
   }
 
   this.RET = () => {
-      this.SP.inc();
+            this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
     this.PC.in(this.addrbus);
     this.flags[2] = 1;
-      
+            
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
     this.BP.in(this.addrbus);
@@ -500,7 +499,7 @@ function VM() {
     this.STIA, //0x2a
     this.IPUSH,//0x2b
     this.IPOP,//0x2c
-      this.ADJP//0x2d
+            this.ADJP//0x2d
   ];
 
 
@@ -539,7 +538,7 @@ function VM() {
      
       //this.dmp_state();
       this.decode_instable[this.databus.value]();
-      //console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value);
+            //console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value);
 
 
       if (this.flags[2] != 1) {
