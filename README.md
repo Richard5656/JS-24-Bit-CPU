@@ -9,6 +9,9 @@ JavaScript was never meant to handle this so your browser might crash.
 
 (There has been an update 10/26/22): There is now a unmicrocoded faster version of the CPU. It's been sitting in my hardrive for quite a while. Doesn't support ports yet though. 
 
+(There has been an update 10/27/22): I have added the asm block in the compiler.
+
+
 
 What you get in firefox
 ![image](https://raw.githubusercontent.com/Richard5656/JS-24-Bit-CPU/main/Enviroment.JPG)
