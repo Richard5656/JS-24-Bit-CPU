@@ -88,7 +88,11 @@ C compiler syntax:
     *(*(9)) pointer to a pointer to a pointer
     You can make a pointer to a pointer to a pointer...
     //this is a commment 
-    
+This is how you can use an asm block.
+	asm{
+		LDAD 90
+		STAD 0
+	}
 Example Program:
     int main(){
         while(*(0) < 100){
