@@ -1,4 +1,3 @@
-
 //compile.js
 function compile(code) {
   this.current_scope = "main";
@@ -19,7 +18,7 @@ function compile(code) {
     */
     let multi_sym = ["-", "*", "-", "+", "=", "<", "!", ">","%"];
     let symbols = ["[", "]", ",", "(", ")", "{", "}", ";"];
-    let keywords = ["while", "if", "for", "main", "int", "return"];
+    let keywords = ["while", "if", "for", "main", "int", "return","asm"];
     let keep_track = "";
     let col = 0;
     let row = 0;
@@ -39,6 +38,8 @@ function compile(code) {
         row += 1;
       }
 
+       
+       
 
       if (symbols.includes(code[i]) || multi_sym.includes(code[i])) {
         if (keep_track != "") {
@@ -97,7 +98,20 @@ function compile(code) {
 
       if (keywords.includes(keep_track)) {
         tokens.push([[col, row], 2, keep_track]);
-        keep_track = "";
+       
+        if(keep_track=="asm"){
+            keep_track = "";
+            i++;
+            i++;
+            while(code[i] != '}'){
+                keep_track += code[i];
+                i++;
+            }
+            tokens.push([[col, row], 2, keep_track]);
+            i++;
+        }
+          keep_track = "";
+         
       }
     }
 
@@ -295,17 +309,23 @@ function compile(code) {
 
           this.expt("JC L" + label_count_buffer);
           this.index = index_buffer_after;
+        }else if(tokens[this.index][2] == "asm"){
+           
+            this.match("asm");
+            this.expt(tokens[this.index][2]);
+            this.index++;
+                 
         } else if (tokens[this.index][2] == "return") {
           this.match("return");
           this.expr_pacg();
           this.expt("POP");
           this.expt("HLT");
           this.match(";");
-		  
-		  
+        } else if(tokens[this.index][2] == ";"){
+            this.match(";");
         }
-		
-		/*else if(tokens[this.index][2] == "int"){
+            
+            /*else if(tokens[this.index][2] == "int"){
         // var_table['scope_name']['varible_name'] = {"varible_type":int|char|array,"varible_name": "varible_name","varible_bp_offset":int};
             this.match("int");
             this.type_match(0);
@@ -371,4 +391,63 @@ while(*(400) < 32){
 }
 return 0;
 }
+*/
+
+
+
+
+/*
+
+//assmebly block subrouteines
+int main(){
+   *(900) = 0;
+
+
+   asm{CALL addition}
+
+   asm{HLT}
+
+   asm{LABEL addition}
+   *(900) = *(900) + 90;
+
+   asm{RET}
+}
+
+*/
+
+
+
+/*
+
+
+//parameter test
+int main(){
+   
+   asm{
+ADJM 900
+      LDAD 80
+      PUSH
+      LDAD 0
+      CALL test
+ADJP 900
+      }
+   asm{HLT};
+   asm{LABEL test};
+   asm{
+       ADJM 900
+       BPTOII
+       IIPUSH
+       LDAD 3
+       PUSH
+       ADD
+       IIPOP
+       LDIIA
+       STAD 0
+       ADJP 900
+   };
+   asm{RET};
+}
+
+
+
 */
