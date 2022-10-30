@@ -4,6 +4,7 @@ Unamed-24
 
 UCC compiler
 
+Not pipelined and no memory protection
 
 For microcode -see code
 
@@ -107,3 +108,6 @@ only 2 pinhole optimizations with C compiler.
 No AST's
 
 Error correction on the assembler and C compiler doesn't exist.
+
+
+*Operating System In current development* No documentation yet
