@@ -3,7 +3,7 @@ int main(){
 //700 - 715  //storage for IO params
 //2000 all temporary storage
 //1100 - 1400 are for constants //mostly storing commands
-//12000-13000 are pointers to the beginning of files
+//12001-13000 are pointers to the beginning of files
 //14000 - 19000 are the file locations 
 //12000 - how many files 
 //11999 - fp pointer to file innards to edit them
@@ -470,17 +470,17 @@ asm{
 	    *(2015) =0;
 		*(2005) = 0;
 		
-		while(*(2015)<*()){
-			
-			
-			*(2015) = *(2015);
+		while(*(2015)<*(12000)){
+			*(2015) = *(2015)+1;
+			*(2004 )= *(*(2015) +12000);
+			asm{CALL print_file_name};
 		}
    asm{RET 0} 
    asm{LABEL print_file_name};
 		  //*(2005) offset
           //*(2004) pointer to file name
           while(*(*(2004)) != 0){
-               *(*(2005)) = *(2004);
+               *(*(2005)) = *(*(2004));
                *(2004) = *(2004) + 1;
                *(2005) = *(2005) + 1;
           }
