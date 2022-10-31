@@ -6,7 +6,7 @@ int main(){
 //12001-13000 are pointers to the beginning of files
 //14000 - 19000 are the file locations 
 //12000 - how many files 
-//11999 - fp pointer to file innards to edit them
+//11990 - fp pointer to file innards to edit them
 //11998 - file location storage. reminder it is like a simple allocater that does not deallocate. 
 //3000 - 7000 filesystem
 //9000-10000 execution space to boot program
@@ -265,7 +265,7 @@ asm{
           asm{LDAD 440 
           STAD 1101} // cat    
           asm{LDAD 342 
-          STAD 1102} // rd    
+          STAD 1102} // rd   
           asm{LDAD 347 
           STAD 1103} // wd    
           asm{LDAD 429 
@@ -320,16 +320,24 @@ asm{
                           }
                                 asm{JMP else1};
                      }
-                     if(*(2001) == 414){ //mkf make file 
+                     if(*(2001) == 414){ //mkf // make file 
                                asm{CALL make_file};
                                asm{JMP else1};
                           }
-                     if(*(2001) == 351){//list files
+                     if(*(2001) == 351){//ls //list files
                              asm{CALL file_list};
-                        asm{JMP else1};
+							 asm{JMP else1};
                       }
-			
-					  
+					if(*(2001) == 347 ){ //wd // writes data in the form of text. 
+					     *(2005) = *(701);
+						asm{CALL edit_text_file};
+						asm{JMP else1};
+					}
+					if(*(2001) == 440){//cat //reads file as ascii to the VGA 
+						*(2005) = *(701);
+						asm{CALL cat};
+						asm{JMP else1};
+					}
                           
                      asm{CALL err};
                      asm{LABEL else1};
@@ -417,7 +425,8 @@ asm{
         *(0) = 32;
     asm{RET 0};
    asm{LABEL make_file}
-      //struct fh{  char name[4]; int type;} //type 0 text, type 1 executable
+      //struct fh{  char name[5]; int type;} //type 1 text, type 0 executable
+	  //6 word for name // 1 word for the type // 24 words for content // 4 words for the null terminations 
        //*(11999) is the file pointer which can be used to edit the innards of a file
        asm{CALL clear_vga_lower};
        *(12000) = *(12000) + 1;
@@ -438,22 +447,23 @@ asm{
            *(*(11990)) =0; //null terminate file name
 		   
 			asm{LDAD 90
-                STAD 300};
+                STAD 325};
 		   asm{CALL port_toPar};
-		   *(11990) = *(11990)+1; // needs to push the file type ater the file name
+		   *(11990) = *(11990)+1; // needs to push the file type ater the file name gets from port 1
            *(*(11990)) = *(700);
 		   
 		   
            *(11990) = *(11990) +1;
-           *(*(11990))=*(715); //null terminate actual file 
-           *(11990) = *(11990) + 24;
-           *(*(11990)) =68; 
+           *(*(11990))=*(715); 
+		   
+           *(11990) = *(11990) + 24;//null terminate actual file 
+           *(*(11990)) = 0; 
            *(11990) = *(11990) +1;
-		    *(*(11990)) =68; 
+		    *(*(11990)) =0; 
            *(11990) = *(11990) +1;
-		    *(*(11990)) =68; 
+		    *(*(11990)) =0; 
            *(11990) = *(11990) +1;
-		   *(*(11990)) =68; 
+		   *(*(11990)) =0; 
            *(11990) = *(11990) +1;
 		   asm{RET 0};
    
@@ -474,8 +484,31 @@ asm{
 			*(2015) = *(2015)+1;
 			*(2004 )= *(*(2015) +12000);
 			asm{CALL print_file_name};
+			*(2004) = *(2004) + 1;
+			*(*(2005)) =32;
+			if(*(*(2004))  == 0){
+				asm{CALL print_exe}
+			}
+			if(*(*(2004))  != 0 ){
+				asm{CALL print_txt};
+			}
+			*(2005) = *(2005) + 22;
 		}
-   asm{RET 0} 
+   asm{RET 0}
+   
+   asm{LABEL print_txt};
+		*(*(2005)+1) = 84;
+		*(*(2005)+2) = 88;
+		*(*(2005)+3) = 84;
+	   *(2005) = *(2005) +4;		
+   asm{RET 0};
+   
+   asm{LABEL print_exe}
+		*(*(2005)+1)  = 69;
+		*(*(2005)+2)  = 88;
+		*(*(2005)+3)  = 69;   
+		*(2005) = *(2005) +4;
+  asm{RET 0};
    asm{LABEL print_file_name};
 		  //*(2005) offset
           //*(2004) pointer to file name
@@ -486,6 +519,39 @@ asm{
           }
    asm{RET 0};
    
+
+   
+   asm{LABEL edit_text_file};
+        //*(2005) pointer to a pointer to a file header   
+		*(11990) = *(12000 + *(2005)); // set to 0 for examples
+		*(11990) = *(11990) + 7; // escape file header
+		*(402) =32;
+		while(*(700) != 0){             
+           asm{CALL clear_vga_lower
+             CALL port_toPar};
+                    *(*(402)) = *(700);
+                    *(*(11990)) =*(700); 
+                    *(11990) = *(11990) +1;
+					*(402) = *(402)+1; //type keyboard reed
+					if(*(402)>24+32){
+							//breaks if theres to much 
+						asm{JMP else2};
+					}
+		}
+		
+   asm{LABEL else2};		
+   asm{RET 0};	
+   asm{LABEL cat};
+        //*(2005) pointer to a pointer to a file header   
+		*(11990) = *(12000 + *(2005)); // set to 0 for examples
+		*(11990) = *(11990) + 7; // escape file header
+	     *(402) = 0; //for looging through VGA
+		 while(*(*(19990)) != 0){
+			 *(402) = *(*(19990));
+			 *(402)= *(402)+1;
+			 *(19990) = *(19990) +1;
+		 }
+   asm{RET 0};		
     asm{LABEL clear_vga_lower}
         *(320) = 321;
         while(*(320) < 352){
