@@ -60,9 +60,9 @@ function storage(name, datawidth) {
 
 
 function VM() {
-  this.AX = new register("Accumulator", 0xffffff);
-  this.IX = new register("Indexer I", 0xffffff);//pointer in memory that will be used for indexing purposes
-  this.IIX = new register("Indexer II", 0xffffff);//second pointer in memory that will be used for indexing purposes
+  this.AX = new register("Accumulator", 0xffffffff);
+  this.IX = new register("Indexer I", 0xffffffff);//pointer in memory that will be used for indexing purposes
+  this.IIX = new register("Indexer II", 0xffffffff);//second pointer in memory that will be used for indexing purposes
   this.PC = new register("Program counter", 0xffffff);
 
   this.PC.value = entry_point;
@@ -77,9 +77,9 @@ function VM() {
 
 
   this.ram = new storage("RAM", 0xffffffff);
-  this.IO_Port = new storage("IO", 0xff);
-  this.databus = new bus("Databus", 0xffffff);
-  this.addrbus = new bus("Address bus", 0xffffff);
+  this.IO_Port = new storage("IO", 0xffffffff);
+  this.databus = new bus("Databus", 0xffffffff);
+  this.addrbus = new bus("Address bus", 0xffffffff);
   this.instrbus = new bus("Instruction Bus", 0xffffffff);
   this.flags = [0, 0, 0, 0];//flags[0] is the halt flag //flags[1] is the condition flag //flags[2] is the jmp flag //flags[3] is the interrupt flag
 
@@ -536,7 +536,7 @@ function VM() {
      
       //this.dmp_state();
       this.decode_instable[this.databus.value]();
-            console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value);
+            console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value);
 
 
       if (this.flags[2] != 1) {
