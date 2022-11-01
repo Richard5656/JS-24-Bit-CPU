@@ -109,5 +109,6 @@ No AST's
 
 Error correction on the assembler and C compiler doesn't exist.
 
+Updated entire CPU to 32 bit. For the operating system. But not for the main vanilla(whatever is in "src") or non opcoded src code. 
 
 *Operating System In current development* No documentation yet
