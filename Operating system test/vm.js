@@ -255,7 +255,7 @@ function VM() {
     this.ram.out(this.SP, this.databus);
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.databus.value /= this.addrbus.value;
+     this.databus.value = this.addrbus.value/this.databus.value;
     this.ram.in(this.SP, this.databus);
     this.SP.dec();
   }
@@ -306,7 +306,7 @@ function VM() {
     this.ram.out(this.SP, this.databus);
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.databus.value %= this.addrbus.value;
+    this.databus.value = this.addrbus.value % this.databus.value;
     this.ram.in(this.SP, this.databus);
     this.SP.dec();
   }
