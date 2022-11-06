@@ -261,24 +261,22 @@ asm{
     //JMP adam program in the DEFAULT drive because there is NO other drive Actually its techinically just memory loacations
     //BIOS boot stuff constants // why did I not add something or even a macro to do this.
   
-          asm{LDAD 489
-          STAD 1100} // help 
-          asm{LDAD 408
-          STAD 1101} // cat   
-          asm{LDAD 342
-          STAD 1102} // rd 
-          asm{LDAD 347
-          STAD 1103} // wd   
-          asm{LDAD 429
-          STAD 1104} // exp 
-          asm{LDAD 485
-          STAD 1105} // exec 
-          asm{LDAD 700
-          STAD 1106} // textin
-          asm{LDAD 446
-          STAD 1107} // mkf   
-          asm{LDAD 351
-          STAD 1108} // ls   
+	 asm{LDAD 425 
+	STAD 1100} // help
+	asm{LDAD 312 
+	STAD 1101} // cat
+	asm{LDAD 214 
+	STAD 1102} // rd
+	asm{LDAD 219 
+	STAD 1103} // wd
+	asm{LDAD 333 
+	STAD 1104} // exp
+	asm{LDAD 421 
+	STAD 1105} // exec
+	asm{LDAD 519 
+	STAD 1106} // clear
+
+
 
 
 
@@ -345,6 +343,11 @@ asm{
                             asm{CALL exec};
                             asm{JMP else1}
                       }
+							  
+					 if(*(2001) == 519){
+							asm{CALL clear_vga};
+					 }
+					  
                      asm{CALL err};
                      asm{LABEL else1};
                      *(402) = 327;
