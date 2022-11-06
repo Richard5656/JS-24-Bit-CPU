@@ -14,6 +14,23 @@ function inject_keyboard(){
 	}
 }
 
+document.addEventListener('keydown', function(event) {
+		    
+			all.IO_Port.data[0] = String.fromCharCode(event.keyCode).toLowerCase().charCodeAt();
+			all.IO_Port.data[15] = 0;
+			if(all.IO_Port.data[0] >= 97 && all.IO_Port.data[0] <= 122){
+				all.flags[0] = 0;
+				all.begin();
+			}
+			if(event.keyCode == 13){
+				all.IO_Port.data[15] =1;
+				all.flags[0] = 0;
+				all.begin();
+			}
+		
+});
+
+
 function inject_ports(){
 	
 	
@@ -29,6 +46,7 @@ function inject_ports(){
 	all.flags[0] = 0;
 	all.begin();
 	
+
 }
 
 function log_ports(){
