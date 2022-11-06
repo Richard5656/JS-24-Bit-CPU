@@ -257,7 +257,7 @@ asm{
   
   
   
-  
+    
     //JMP adam program in the DEFAULT drive because there is NO other drive Actually its techinically just memory loacations
     //BIOS boot stuff constants // why did I not add something or even a macro to do this.
   
@@ -282,8 +282,8 @@ asm{
 
 
 
-    //asm{CALL clear_vga};
      asm{HLT}
+	     asm{CALL clear_vga};
     *(400) = 0; //power off varible //while 0 will keep machine continuing in current state.
     *(401) = 0; // will store condition of IO port 15 which is the IO port which emualtes an interupt which will make an enter happen on the shell if 1
     *(402) = 327; //keyboard pointer location
@@ -296,6 +296,7 @@ asm{
     asm{LABEL Adam_d1};
      asm{CALL clear_vga_lower};
         while(*(400) == 0){
+			
             asm{CALL shell_scr
                 CALL port_toPar};
                   
@@ -497,7 +498,7 @@ asm{
                   if(*(*(2004))  != 0 ){
                         asm{CALL print_txt};
                   }
-                  *(2005) = *(2005) + 22;
+                  *(2005) = *(2005) + 23;
             }
    asm{RET 0}
   
@@ -579,6 +580,7 @@ asm{
    asm{RET 0};
    
     asm{LABEL clear_vga_lower}
+	
         *(320) = 321;
         while(*(320) < 352){
             *(320) = *(320) +1;
