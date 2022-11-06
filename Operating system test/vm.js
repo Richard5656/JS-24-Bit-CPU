@@ -87,6 +87,7 @@ function VM() {
 
   this.HLT = () => {
     this.flags[0] = 1;
+	this.text_disp_render();
   }
 
 
@@ -545,7 +546,7 @@ function VM() {
         this.flags[2] = 0;
 
       }
-         this.text_disp_render();
+         
     }
   }
 
