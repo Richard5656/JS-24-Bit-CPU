@@ -38,8 +38,8 @@ function compile(code) {
         row += 1;
       }
 
-       
-       
+      
+      
 
       if (symbols.includes(code[i]) || multi_sym.includes(code[i])) {
         if (keep_track != "") {
@@ -98,7 +98,7 @@ function compile(code) {
 
       if (keywords.includes(keep_track)) {
         tokens.push([[col, row], 2, keep_track]);
-       
+      
         if(keep_track=="asm"){
             keep_track = "";
             i++;
@@ -111,7 +111,7 @@ function compile(code) {
             i++;
         }
           keep_track = "";
-         
+        
       }
     }
 
@@ -210,7 +210,9 @@ function compile(code) {
         this.expt("PUSH");
         this.index++;
       } else if (tokens[this.index][1] == 0) {
-        console.log("Identfier");
+        this.expt("LDAD " + tokens[this.index][2]);
+         this.expt("PUSH");
+         this.index++;
       } else if (tokens[this.index][2] == "*") {
         this.pointer_pacg();
         this.expt("PUSH");
@@ -220,6 +222,8 @@ function compile(code) {
       }
     }
 
+   
+   
 
     this.term_pacg = () => {
       this.factor_pacg();
@@ -279,7 +283,6 @@ function compile(code) {
         if (tokens[this.index][2] == "*") {
           this.pointer_pacg();
         } else if (tokens[this.index][2] == "if") {
-
           this.if_pacg();
 
         } else if (tokens[this.index][2] == "while") {
@@ -310,22 +313,27 @@ function compile(code) {
           this.expt("JC L" + label_count_buffer);
           this.index = index_buffer_after;
         }else if(tokens[this.index][2] == "asm"){
-           
+          
             this.match("asm");
             this.expt(tokens[this.index][2]);
             this.index++;
-                 
+                
         } else if (tokens[this.index][2] == "return") {
           this.match("return");
           this.expr_pacg();
           this.expt("POP");
           this.expt("HLT");
           this.match(";");
-        } else if(tokens[this.index][2] == ";"){
+        }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "("){
+            this.expt("CALL " + tokens[this.index][2])
+            this.index++;
+            this.match("(");
+            this.match(")");
+            this.match(";");
+         }else if(tokens[this.index][2] == ";"){
             this.match(";");
         }
-            
-            /*else if(tokens[this.index][2] == "int"){
+          /*else if(tokens[this.index][2] == "int"){
         // var_table['scope_name']['varible_name'] = {"varible_type":int|char|array,"varible_name": "varible_name","varible_bp_offset":int};
             this.match("int");
             this.type_match(0);
@@ -350,7 +358,7 @@ function compile(code) {
                 this.match(";");
                 this.match("=");
             }
-           
+          
         }*/ else {
           this.log("Invalid usage of something ");
           console.log(tokens[this.index]);
@@ -361,6 +369,7 @@ function compile(code) {
     }
 
     this.main_pacg = () => {
+     
       this.expt("LABEL main")
       this.match("int");
       this.match("main");
@@ -370,7 +379,37 @@ function compile(code) {
       this.expt("LABEL end")
       this.expt("HLT");
     }
+    this.var_pacg =() =>{
+         this.expt("JMP main");
+        while(tokens[this.index][2] == "int" && tokens[this.index+1][2] != "main"){
+          
+            this.match("int");
+            this.expt("LABEL " + tokens[this.index][2]);
+            this.index++;
+            this.match("=");
+            this.expt("HLT " + tokens[this.index][2]);
+             this.index++;
+            this.match(";");
+        }
+    }
+    this.func_pacg = () =>{
+        while(this.index<tokens.length&& tokens[this.index][2] == "int"){  
+            this.match("int");
+            this.expt("LABEL " + tokens[this.index][2]);
+            this.index++;
+            this.match("(");
+            this.match(")");
+            this.block_pacg();
+            this.expt("RET");
+        }
+        this.expt("HLT");
+
+    }
+   
+   
+    this.var_pacg();//temporary solution using global varibles to do stuff. can only store numbers
     this.main_pacg();
+    this.func_pacg();
     return ASM;
   }
 
@@ -422,7 +461,7 @@ int main(){
 
 //parameter test
 int main(){
-   
+  
    asm{
 ADJM 900
       LDAD 80
