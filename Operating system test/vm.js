@@ -245,7 +245,7 @@ function VM() {
     this.ram.out(this.SP, this.databus);
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.databus.value -= this.addrbus.value;
+    this.databus.value= this.addrbus.value-this.databus.value;
     this.ram.in(this.SP, this.databus);
     this.SP.dec();
   }
@@ -537,8 +537,8 @@ function VM() {
      
       //this.dmp_state();
       this.decode_instable[this.databus.value]();
-            console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value,this.ram.data[0]);
-
+            //console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value,this.ram.data[0]);
+          //debug pls uncomment to debug
 
       if (this.flags[2] != 1) {
         this.PC.inc();

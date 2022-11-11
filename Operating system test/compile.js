@@ -17,7 +17,7 @@ function compile(code) {
             3: symbol
             4: string
     */
-    let multi_sym = ["-", "*", "+", "=", "<", "!", ">","%","^","|","&"];
+    let multi_sym = ["-", "*", "+", "=", "<", "!", ">","%","^","|","&","$"];
     let symbols = ["[", "]", ",", "(", ")", "{", "}", ";"];
     let keywords = ["while", "if", "for", "main", "int", "return","asm","arg","char","global"];
     let keep_track = "";
@@ -67,6 +67,14 @@ function compile(code) {
 
       if (multi_sym.includes(keep_track)) {
         if (code[i + 1] == "=") {
+          keep_track += code[++i];
+          tokens.push([[col, row], 3, keep_track]);
+          keep_track = "";
+        }else if (code[i + 1] == ">") {
+          keep_track += code[++i];
+          tokens.push([[col, row], 3, keep_track]);
+          keep_track = "";
+        }else if (code[i + 1] == "<") {
           keep_track += code[++i];
           tokens.push([[col, row], 3, keep_track]);
           keep_track = "";
@@ -170,10 +178,13 @@ function compile(code) {
 
     this.pointer_pacg = () => {
       this.match("*");
-      this.match("(");
+      if(tokens[this.index][2] == "("){
+		this.match("(");
+	  }
       this.expr_pacg();
-      this.match(")");
-
+      if(tokens[this.index][2] == ")"){
+			this.match(")");
+	  }
 
       if (tokens[this.index][2] == "=") {
         this.expt("IIPOP");
@@ -224,10 +235,43 @@ function compile(code) {
         this.expt("PUSH");
         this.index++;
       } else if (tokens[this.index][1] == 0) {
-        this.expt("LDAD " + tokens[this.index][2]);
-         this.expt("PUSH");
-         this.index++;
-      } else if (tokens[this.index][2] == "*") {
+		  
+		  if(tokens[this.index+1][2] != "("){
+			this.expt("LDAM " + tokens[this.index][2]);
+			 this.expt("PUSH");
+			 this.index++;
+		  }else{
+		 
+		    let token_id_call_buff = tokens[this.index][2];
+            this.index++;
+            this.match("(");
+            let temporary_index_for_poping_stuff_off_the_stack = 0;
+            while(tokens[this.index][2] != ")"){
+                temporary_index_for_poping_stuff_off_the_stack++;
+                this.expr_pacg();
+                if(tokens[this.index][2] == ","){
+                    this.index++;
+                }
+            }
+
+
+			
+            this.match(")");
+			this.expt("CALL " + token_id_call_buff);
+			this.expt("PUSH");
+			this.expt("IPOP");
+            for(ik =0; ik< temporary_index_for_poping_stuff_off_the_stack;ik++){
+                this.expt("POP");
+            }
+			this.expt("IPUSH ");
+		  }
+		 
+      }else if(tokens[this.index][2] == "$"){
+		  this.match("$");
+		 this.expt("LDAD " + tokens[this.index][2]);
+         this.expt("PUSH"); 
+		 this.index++;
+	  } else if (tokens[this.index][2] == "*") {
         this.pointer_pacg();
         this.expt("PUSH");
       }else if(tokens[this.index][2] == "arg"){
@@ -236,6 +280,9 @@ function compile(code) {
             this.expt("IIPUSH");
             this.expt("BPTOII");
             this.expt("IIPUSH");
+			this.expt("LDAD 3");
+			this.expt("PUSH");
+			this.expt("ADD");
             this.expr_pacg();
             this.expt("ADD");
             this.expt("IIPOP");
@@ -273,7 +320,7 @@ function compile(code) {
 
     this.term_pacg = () => {
       this.factor_pacg();
-      while (["*", "/", "<", "!", ">","%","^","|","&"].includes(tokens[this.index][2])) {
+      while (["*", "/", "<<", ">>","%","^","|","&"].includes(tokens[this.index][2])) {
         if (tokens[this.index][2] == "*") {
           this.index++;
           this.factor_pacg();
@@ -298,11 +345,11 @@ function compile(code) {
           this.index++;
           this.factor_pacg();
           this.expt("AND");
-        }else if(tokens[this.index][2] == ">"){
+        }else if(tokens[this.index][2] == ">>"){
           this.index++;
           this.factor_pacg();
           this.expt("RS");
-        }else if(tokens[this.index][2] == "<"){
+        }else if(tokens[this.index][2] == "<<"){
           this.index++;
           this.factor_pacg();
           this.expt("LS");
@@ -388,7 +435,6 @@ function compile(code) {
           this.match("return");
           this.expr_pacg();
           this.expt("POP");
-          this.expt("HLT");
           this.match(";");
         }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "("){
             let token_id_call_buff = tokens[this.index][2];
@@ -528,7 +574,6 @@ function compile(code) {
 }
 
 /*
-
 //prints capitilized abcs
 int main(){
 *(400) =0;
@@ -544,29 +589,20 @@ return 0;
 
 
 /*
-
 //assmebly block subrouteines
 int main(){
    *(900) = 0;
-
-
    asm{CALL addition}
-
    asm{HLT}
-
    asm{LABEL addition}
    *(900) = *(900) + 90;
-
    asm{RET}
 }
-
 */
 
 
 
 /*
-
-
 //parameter test
 int main(){
   
@@ -594,18 +630,11 @@ ADJP 900
    };
    asm{RET};
 }
-
-
-
-
 //better parameter check
 int main(){
 k(90);
 }
-
 int k(){
 *(0) = arg[9];
-
 }
-
 */

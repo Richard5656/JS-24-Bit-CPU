@@ -12,7 +12,7 @@ function assembler(code){
      
      
       for(i =0; i<code.length; i++){
-          if(code[i] != '\n' && code[i] != ' ' ){keep_track+= code[i];}
+          if(code[i] != '\n' && code[i] != ' ' && code[i] != '\t' && code[i] != '\r'){keep_track+= code[i];}
            
            
                          if(instruction_tokens.includes(keep_track)){
