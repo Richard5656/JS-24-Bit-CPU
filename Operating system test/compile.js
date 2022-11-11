@@ -15,10 +15,11 @@ function compile(code) {
             1: integer
             2: key_word
             3: symbol
+            4: string
     */
-    let multi_sym = ["-", "*", "-", "+", "=", "<", "!", ">","%"];
+    let multi_sym = ["-", "*", "+", "=", "<", "!", ">","%","^","|","&"];
     let symbols = ["[", "]", ",", "(", ")", "{", "}", ";"];
-    let keywords = ["while", "if", "for", "main", "int", "return","asm"];
+    let keywords = ["while", "if", "for", "main", "int", "return","asm","arg","char","global"];
     let keep_track = "";
     let col = 0;
     let row = 0;
@@ -113,8 +114,21 @@ function compile(code) {
           keep_track = "";
         
       }
-    }
-
+       
+       
+        if(keep_track == "\""){ // string handliation
+            keep_track = "";
+            i++;
+            while(code[i] != "\""){
+                keep_track+= code[i];
+                row++;
+                i++;
+            }
+           tokens.push([[col, row], 4, keep_track]);
+           keep_track = "";
+        }
+       
+    }     
     return tokens;
   }
 
@@ -216,10 +230,42 @@ function compile(code) {
       } else if (tokens[this.index][2] == "*") {
         this.pointer_pacg();
         this.expt("PUSH");
-      } else if (tokens[this.index][2] == "(") {
+      }else if(tokens[this.index][2] == "arg"){
+            this.match("arg");
+            this.match("[");
+            this.expt("IIPUSH");
+            this.expt("BPTOII");
+            this.expt("IIPUSH");
+            this.expr_pacg();
+            this.expt("ADD");
+            this.expt("IIPOP");
+            this.expt("LDIIA");
+            this.expt("IIPOP");
+            this.expt("PUSH");
+            this.match("]");
+         
+         
+          /*
+             asm{
+       ADJM 900
+       BPTOII
+       IIPUSH
+       LDAD 3
+       PUSH
+       ADD
+       IIPOP
+       LDIIA
+       STAD 0
+       ADJP 900
+   };
+          */
+          }
+       
+        /*else if (tokens[this.index][2] == "(") {
         this.expr_pacg();
         this.match(")");
       }
+      */
     }
 
    
@@ -227,7 +273,7 @@ function compile(code) {
 
     this.term_pacg = () => {
       this.factor_pacg();
-      while (tokens[this.index][2] == "*" || tokens[this.index][2] == "/"|| tokens[this.index][2] == "%") {
+      while (["*", "/", "<", "!", ">","%","^","|","&"].includes(tokens[this.index][2])) {
         if (tokens[this.index][2] == "*") {
           this.index++;
           this.factor_pacg();
@@ -240,6 +286,26 @@ function compile(code) {
           this.index++;
           this.factor_pacg();
           this.expt("MOD");
+        }else if(tokens[this.index][2] == "^"){
+          this.index++;
+          this.factor_pacg();
+          this.expt("XOR");
+        }else if(tokens[this.index][2] == "|"){
+          this.index++;
+          this.factor_pacg();
+          this.expt("OR");
+        }else if(tokens[this.index][2] == "&"){
+          this.index++;
+          this.factor_pacg();
+          this.expt("AND");
+        }else if(tokens[this.index][2] == ">"){
+          this.index++;
+          this.factor_pacg();
+          this.expt("RS");
+        }else if(tokens[this.index][2] == "<"){
+          this.index++;
+          this.factor_pacg();
+          this.expt("LS");
         }
       }
     }
@@ -325,12 +391,36 @@ function compile(code) {
           this.expt("HLT");
           this.match(";");
         }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "("){
-            this.expt("CALL " + tokens[this.index][2])
+            let token_id_call_buff = tokens[this.index][2];
             this.index++;
             this.match("(");
+            let temporary_index_for_poping_stuff_off_the_stack = 0;
+            while(tokens[this.index][2] != ")"){
+                temporary_index_for_poping_stuff_off_the_stack++;
+                this.expr_pacg();
+                if(tokens[this.index][2] == ","){
+                    this.index++;
+                }
+            }
+
+            this.expt("CALL " + token_id_call_buff);
+            for(ik =0; ik< temporary_index_for_poping_stuff_off_the_stack;ik++){
+                this.expt("POP");
+            }
             this.match(")");
             this.match(";");
-         }else if(tokens[this.index][2] == ";"){
+        }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "="){
+            this.expt("LDAD " + tokens[this.index][2]);
+            this.expt("PUSH");
+            this.index++;
+            this.expt("IIPOP");
+            this.match("=");
+            this.expr_pacg();
+            this.expt("POP");
+            this.expt("STIIA");
+            this.match(";");
+       
+        }else if(tokens[this.index][2] == ";"){
             this.match(";");
         }
           /*else if(tokens[this.index][2] == "int"){
@@ -364,6 +454,8 @@ function compile(code) {
           console.log(tokens[this.index]);
           throw new error("Noooooooo");
         }
+                 
+
       }
       this.match("}");
     }
@@ -381,15 +473,32 @@ function compile(code) {
     }
     this.var_pacg =() =>{
          this.expt("JMP main");
-        while(tokens[this.index][2] == "int" && tokens[this.index+1][2] != "main"){
-          
-            this.match("int");
-            this.expt("LABEL " + tokens[this.index][2]);
-            this.index++;
-            this.match("=");
-            this.expt("HLT " + tokens[this.index][2]);
-             this.index++;
-            this.match(";");
+        while((tokens[this.index][2] == "char" || tokens[this.index][2] == "int") && tokens[this.index+1][2] != "main"){
+           if(tokens[this.index][2] == "int"){
+                this.match("int");
+                this.expt("LABEL " + tokens[this.index][2]);
+                this.index++;
+                this.match("=");
+                this.expt("HLT " + tokens[this.index][2]);
+                 this.index++;
+                this.match(";");
+            }else if(tokens[this.index][2] == "char"){
+                this.match("char");
+                this.expt("LABEL " + tokens[this.index][2]);
+                this.index++;
+                this.match("=");
+               
+                let byte_arr = new TextEncoder().encode(tokens[this.index][2]);
+               
+               
+                for(i =0; i< byte_arr.length; i++){
+                    this.expt("HLT " + byte_arr[i]);
+                }
+               
+                this.expt("HLT 0");
+                this.index++;
+                this.match(";");    
+            }
         }
     }
     this.func_pacg = () =>{
@@ -415,7 +524,6 @@ function compile(code) {
 
   //console.log(this.parse_gen(lexer(code)));
   //console.log(lexer(code))
-
   return this.parse_gen(lexer(code)).replaceAll("PUSH\nPOP\n","");
 }
 
@@ -488,5 +596,16 @@ ADJP 900
 }
 
 
+
+
+//better parameter check
+int main(){
+k(90);
+}
+
+int k(){
+*(0) = arg[9];
+
+}
 
 */
