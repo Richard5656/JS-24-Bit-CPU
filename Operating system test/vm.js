@@ -87,7 +87,7 @@ function VM() {
 
   this.HLT = () => {
     this.flags[0] = 1;
-	this.text_disp_render();
+      this.text_disp_render();
   }
 
 
@@ -316,7 +316,7 @@ function VM() {
     this.ram.out(this.SP, this.databus);
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.databus.value >>= this.addrbus.value;
+    this.databus.value = this.addrbus.value << this.databus.value;
     this.ram.in(this.SP, this.databus);
     this.SP.dec();
   }
@@ -326,7 +326,7 @@ function VM() {
     this.ram.out(this.SP, this.databus);
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.databus.value >>= this.addrbus.value;
+    this.databus.value = this.addrbus.value >> this.databus.value;
     this.ram.in(this.SP, this.databus);
     this.SP.dec();
   }
@@ -396,16 +396,16 @@ function VM() {
 
     this.BP.out(this.databus);
     this.ram.in(this.SP, this.databus);
-            
+           
     this.SP.dec();
-            
-            
+           
+           
             this.PC.inc();
     this.PC.out(this.databus);
     this.ram.in(this.SP, this.databus);
    
             this.SP.dec();
-            
+           
             this.PC.in(this.addrbus);
     this.flags[2] = 1;
    
@@ -419,7 +419,7 @@ function VM() {
     this.ram.out(this.SP, this.addrbus);
     this.PC.in(this.addrbus);
     this.flags[2] = 1;
-            
+           
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
     this.BP.in(this.addrbus);
@@ -434,9 +434,9 @@ function VM() {
   }
 
   this.OUTP = () => {
-	this.databus.value = 0;
-	this.IO_Port.out(this.addrbus, this.databus);
-	
+      this.databus.value = 0;
+      this.IO_Port.out(this.addrbus, this.databus);
+      
     this.AX.in(this.databus);
   }
 
@@ -528,7 +528,7 @@ function VM() {
      
      
     let instruction_tokens = ["HLT", "LDAD", "LDAM", "STAD", "PUSH", "POP", "ADD", "SUB", "MUL", "DIV", "MOD", "XOR", "OR", "AND", "LS", "RS", "EQ", "LT", "GT", "NE", "JMP", "JC", "JNC", "ADJM", "CALL", "RET", "IIPUSH", "IIPOP", "LDID", "LDIM", "STID", "LDIID", "LDIIM", "STIID", "LDIIA", "LDIA", "INP", "OUTP", "BPTOII", "INCI", "DECI", "STIIA", "STIA", "IPUSH", "IPOP","ADJP"];
-    while (this.flags[0] == 0) { 
+    while (this.flags[0] == 0) {
 
       this.PC.out(this.addrbus);
       this.ram.out(this.addrbus, this.instrbus);
@@ -537,7 +537,7 @@ function VM() {
      
       //this.dmp_state();
       this.decode_instable[this.databus.value]();
-            console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value);
+            console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value,this.ram.data[0]);
 
 
       if (this.flags[2] != 1) {
