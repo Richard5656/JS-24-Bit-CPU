@@ -537,7 +537,7 @@ function VM() {
      
       //this.dmp_state();
       this.decode_instable[this.databus.value]();
-            //console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value,this.ram.data[0]);
+      //console.log(this.PC.value, instruction_tokens[this.databus.value],this.addrbus.value,this.instrbus.value,this.ram.data[0]);
           //debug pls uncomment to debug
 
       if (this.flags[2] != 1) {

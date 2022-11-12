@@ -241,7 +241,7 @@ function compile(code) {
 			 this.expt("PUSH");
 			 this.index++;
 		  }else{
-		 
+		   this.expt("IIPUSH");
 		    let token_id_call_buff = tokens[this.index][2];
             this.index++;
             this.match("(");
@@ -263,6 +263,7 @@ function compile(code) {
             for(ik =0; ik< temporary_index_for_poping_stuff_off_the_stack;ik++){
                 this.expt("POP");
             }
+			this.expt("IIPOP");
 			this.expt("IPUSH ");
 		  }
 		 
@@ -569,7 +570,7 @@ function compile(code) {
   }
 
   //console.log(this.parse_gen(lexer(code)));
-  //console.log(lexer(code))
+  console.log(lexer(code))
   return this.parse_gen(lexer(code)).replaceAll("PUSH\nPOP\n","");
 }
 
