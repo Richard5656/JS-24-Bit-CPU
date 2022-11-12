@@ -19,7 +19,7 @@ function compile(code) {
     */
     let multi_sym = ["-", "*", "+", "=", "<", "!", ">","%","^","|","&","$"];
     let symbols = ["[", "]", ",", "(", ")", "{", "}", ";"];
-    let keywords = ["while", "if", "for", "main", "int", "return","asm","arg","char","global"];
+    let keywords = ["while", "if", "for", "main", "int", "return","asm","arg","char","global","bpa"];
     let keep_track = "";
     let col = 0;
     let row = 0;
@@ -307,6 +307,19 @@ function compile(code) {
        ADJP 900
    };
           */
+          }else if(tokens[this.index][2] == "bpa"){
+            this.match("bpa");
+            this.match("[");
+            this.expt("IIPUSH");
+            this.expt("BPTOII");
+            this.expt("IIPUSH");
+            this.expr_pacg();
+            this.expt("SUB");
+            this.expt("IIPOP");
+            this.expt("LDIIA");
+            this.expt("IIPOP");
+            this.expt("PUSH");
+            this.match("]");
           }
        
         /*else if (tokens[this.index][2] == "(") {
@@ -467,7 +480,23 @@ function compile(code) {
             this.expt("STIIA");
             this.match(";");
        
-        }else if(tokens[this.index][2] == ";"){
+        }else if(tokens[this.index][2] == "bpa"){
+            this.match("bpa");
+            this.match("[");
+            this.expt("IIPUSH");
+            this.expt("BPTOII");
+            this.expt("IIPUSH");
+            this.expr_pacg();
+			this.match("]");
+            this.expt("SUB");
+            this.expt("IIPOP");
+			this.match("=");
+            this.expr_pacg();
+            this.expt("POP");
+            this.expt("STIIA");
+            
+			
+          }else if(tokens[this.index][2] == ";"){
             this.match(";");
         }
           /*else if(tokens[this.index][2] == "int"){

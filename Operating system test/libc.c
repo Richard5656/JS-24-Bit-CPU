@@ -1,19 +1,39 @@
 int i = 0;
 int buffer = 0;
 int loc =0;
-int ie = 0;
+int ie = 0; // looper for the decdmp
 int k =0;
-int kbi =0;
+
+
+int kbi =0;//keyboard input 
 int offset = 0;
+
+int inf_loop_cond = 0;
+
+
 char welcome = "Hello my name is Jerry";
 char atoi_buffer = "16777216";
 char atoi_buffer_b = "256 ";
+
+
+
+
+
+
+
 int main(){
 	clear();
-    while(1 == 1){
+
+}
+
+
+
+int decdmp(){
+	inf_loop_cond = 1;
+    while(inf_loop_cond == 1){
 		ie = 0;
 		while(ie < 11){
-			kprintma(*(offset+ie+20000),offset+ie+20000);
+			kprintma(offset+ie+20000);
 			ie = ie + 1;
 		}
 		
@@ -25,17 +45,22 @@ int main(){
 		
 		if(kbi == 119){
 			
-			offset = offset - 11;
+			offset = offset - 1;
 			
 		}
 		
 		if(kbi == 115){
 			
-			offset = offset + 11;
+			offset = offset + 1;
+			
+		}
+		
+		if(kbi == 113){
+			
+			inf_loop_cond = 0;
 			
 		}
 	}
-		
 }
 
 
@@ -75,7 +100,7 @@ return $atoi_buffer;
 
 
 
-int kprintma(){//kernel print
+int kprintma(){//dumps hex at certain position
     k =0;
 	loc = loc % 11;
 	buffer = atoi(arg[0]);
@@ -85,13 +110,13 @@ int kprintma(){//kernel print
    }
    
    k=0;
-   buffer = arg[1] >> 24;
+   buffer = *(arg[0]) >> 24;
    buffer = atoi_b(buffer);
    while(*(k + buffer) != 0){
         *(k+ 9+ loc * 32) = *(k + buffer);
         k = k + 1;
    }
-   buffer = arg[1] & 65280;
+   buffer = *(arg[0]) & 65280;
    buffer = atoi_b(buffer);
    k= 0;
 
@@ -100,7 +125,7 @@ int kprintma(){//kernel print
         k = k + 1;
    }
    
-   buffer = arg[1] & 255;
+   buffer = *(arg[0]) & 255;
    buffer = atoi_b(buffer);
    k= 0;
    while(*(k + buffer) != 0){
@@ -141,3 +166,5 @@ int kprint(){//kernel print
    }
    loc = loc +1;
 }
+
+
