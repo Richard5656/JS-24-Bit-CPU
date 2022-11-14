@@ -1,14 +1,13 @@
 int i = 0;
 int buffer = 0;
 int loc =0;
-int ie = 0; // looper for the decdmp
-int k =0;
+int ie = 0;
+int k =0;//print indexer
+int kbi =0; //keyboard input
+int offset = 0; // offsetter for the decdmp
 
-
-int kbi =0;//keyboard input 
-int offset = 0;
-
-int inf_loop_cond = 0;
+int inf_loop_cond = 0; //loop condition to keep execution into a diffrent process
+int heap_ptr = 14777215; // heap pointer grows upwards to the stack
 
 
 char welcome = "Hello my name is Jerry";
@@ -17,19 +16,18 @@ char atoi_buffer_b = "256 ";
 
 
 
-
-
-
-
 int main(){
-	clear();
 
+	//clear();
+	r_light(10341);
+	//kprint(atoi(9+10));
 }
 
 
 
 int decdmp(){
 	inf_loop_cond = 1;
+	offset = 0;
     while(inf_loop_cond == 1){
 		ie = 0;
 		while(ie < 11){
@@ -63,7 +61,13 @@ int decdmp(){
 	}
 }
 
-
+int fill_a(){
+    i=0;
+    while(i < 352){
+         *i = 65 ;
+         i = i + 1;
+    }
+}
 
 int clear(){
     i=0;
@@ -158,13 +162,71 @@ int kprintm(){//kernel print
 
 
 int kprint(){//kernel print
-    i =0;
+    k =0;
 	loc = loc % 11;
-    while(*(i + arg[0]) != 0){
-        *(i+ loc * 32) = *(i + arg[0]);
-        i = i + 1;
+    while(*(k + arg[0]) != 0){
+        *(k+ loc * 32) = *(k + arg[0]);
+        k = k + 1;
    }
    loc = loc +1;
 }
 
 
+
+
+int kprintblk(){ // prints from heap
+	asm{ADJM 10};
+	bpa[0] = *(arg[0]);
+	bpa[1] = 0;//iterator
+	asm{ADJP 10};
+	return 0;//temporary holder
+}
+
+
+int kmalloc(){
+	
+	heap_ptr = heap_ptr+arg[0];
+	*heap_ptr = 0;
+	
+	return (heap_ptr - arg[0]);
+}
+
+int xorshift(){
+        asm{ADJM 10};
+
+			 bpa[1] = arg[0];
+			 bpa[1] =  bpa[1] ^ (bpa[1] << 13); 
+			 bpa[1] = bpa[1] ^ (bpa[1] >> 17);
+			 bpa[1] = bpa[1] ^ (bpa[1] << 5);
+			 bpa[1] = bpa[1] & 65535;
+			 
+			 return bpa[1];
+        asm{ADJP 10};
+}
+
+
+int r_light(){
+	asm{ADJM 10};
+	
+	bpa[1] = arg[0];
+	while(1==1){
+		bpa[0] = 0; // iterator
+		clear();
+		while(bpa[0] < 90){
+			  bpa[1] = xorshift(bpa[1]);
+
+			 
+			 *(bpa[1]%352) = 65;
+
+
+
+			//kprint(atoi(bpa[1]));
+			
+			bpa[0] = bpa[0] + 1;
+		}
+		asm{HLT 0
+			OUTP 0
+			STAD kbi};
+	}
+	asm{ADJP 10};
+}

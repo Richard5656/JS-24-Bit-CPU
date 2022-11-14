@@ -393,11 +393,11 @@ function VM() {
 
 
   this.CALL = () => {
-
+console.log(0,this.BP.value,this.PC.value);
     this.BP.out(this.databus);
     this.ram.in(this.SP, this.databus);
            
-    this.SP.dec();
+    this.SP.dec();//base pointer pushed 
            
            
             this.PC.inc();
@@ -406,23 +406,24 @@ function VM() {
    
             this.SP.dec();
            
-            this.PC.in(this.addrbus);
+            this.PC.in(this.addrbus);// pc pushed 
     this.flags[2] = 1;
    
             this.SP.out(this.addrbus);
-    this.BP.in(this.addrbus);
-
+    this.BP.in(this.addrbus); // move sp to bp
+	
   }
 
   this.RET = () => {
             this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.PC.in(this.addrbus);
+    this.PC.in(this.addrbus); //pop addr back into PC
     this.flags[2] = 1;
            
     this.SP.inc();
     this.ram.out(this.SP, this.addrbus);
-    this.BP.in(this.addrbus);
+    this.BP.in(this.addrbus); // pop addr back into BP
+	console.log(1,this.BP.value,this.PC.value);
   }
 
 

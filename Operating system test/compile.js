@@ -33,6 +33,8 @@ function compile(code) {
           i++;
         }
       }
+	  
+	  
 
       if (code[i] == '\n') {
         col = 0;
@@ -260,9 +262,7 @@ function compile(code) {
 			this.expt("CALL " + token_id_call_buff);
 			this.expt("PUSH");
 			this.expt("IPOP");
-            for(ik =0; ik< temporary_index_for_poping_stuff_off_the_stack;ik++){
-                this.expt("POP");
-            }
+            this.expt("ADJP " + temporary_index_for_poping_stuff_off_the_stack);
 			this.expt("IIPOP");
 			this.expt("IPUSH ");
 		  }
@@ -317,16 +317,14 @@ function compile(code) {
             this.expt("SUB");
             this.expt("IIPOP");
             this.expt("LDIIA");
-            this.expt("IIPOP");
+			this.expt("IIPOP");
             this.expt("PUSH");
             this.match("]");
-          }
-       
-        /*else if (tokens[this.index][2] == "(") {
-        this.expr_pacg();
-        this.match(")");
+          }else if (tokens[this.index][2] == "(") {
+			 this.match("(");
+			this.expr_pacg();
+			this.match(")");
       }
-      */
     }
 
    
@@ -464,9 +462,7 @@ function compile(code) {
             }
 
             this.expt("CALL " + token_id_call_buff);
-            for(ik =0; ik< temporary_index_for_poping_stuff_off_the_stack;ik++){
-                this.expt("POP");
-            }
+            this.expt("ADJP " + temporary_index_for_poping_stuff_off_the_stack);
             this.match(")");
             this.match(";");
         }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "="){
@@ -493,6 +489,7 @@ function compile(code) {
 			this.match("=");
             this.expr_pacg();
             this.expt("POP");
+			this.expt("ADJP 1");
             this.expt("STIIA");
             
 			
