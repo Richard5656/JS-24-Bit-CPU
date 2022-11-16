@@ -87,7 +87,7 @@ function VM() {
 
   this.HLT = () => {
     this.flags[0] = 1;
-      this.text_disp_render();
+            this.text_disp_render();
   }
 
 
@@ -435,9 +435,9 @@ console.log(0,this.BP.value,this.PC.value);
   }
 
   this.OUTP = () => {
-      this.databus.value = 0;
-      this.IO_Port.out(this.addrbus, this.databus);
-      
+            this.databus.value = 0;
+            this.IO_Port.out(this.addrbus, this.databus);
+            
     this.AX.in(this.databus);
   }
 
