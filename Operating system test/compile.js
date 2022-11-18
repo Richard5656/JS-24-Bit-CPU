@@ -597,7 +597,11 @@ function compile(code) {
 
   //console.log(this.parse_gen(lexer(code)));
   console.log(lexer(code))
-  return this.parse_gen(lexer(code)).replaceAll("PUSH\nPOP\n","");
+  return this.parse_gen(lexer(code)).replaceAll("PUSH\nPOP\n","")
+      .replaceAll("BPTOII\nIIPUSH\nLDAD 0\nPUSH\nSUB","BPTOII\nIIPUSH")
+      .replaceAll("IIPUSH\nIIPOP\n","")
+      .replaceAll("BPTOII\nIIPUSH\nLDAD 3\nPUSH\nADD\nLDAD 0\nPUSH\nADD","BPTOII\nIIPUSH\nLDAD 3\nPUSH\nADD")
+      .replaceAll("ADJP 0","");
 }
 
 /*
