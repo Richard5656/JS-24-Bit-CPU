@@ -31,6 +31,33 @@ document.addEventListener('keydown', function(event) {
 });
 
 
+//nintendo switch joycon support
+/*
+setInterval(function() {
+	let ep = navigator.getGamepads()[0];
+    if(ep.buttons[0].pressed == true){
+		all.IO_Port.data[0] ='a'.charCodeAt();
+		all.flags[0] = 0;
+		all.begin();		
+
+	}else  if(ep.buttons[1].pressed == true){
+		all.IO_Port.data[0] ='s'.charCodeAt();
+		all.flags[0] = 0;
+		all.begin();		
+	}else  if(ep.buttons[2].pressed == true){
+		all.IO_Port.data[0] ='w'.charCodeAt();
+		all.flags[0] = 0;
+		all.begin();		
+	}else if(ep.buttons[3].pressed == true){
+		all.IO_Port.data[0] ='d'.charCodeAt();
+		all.flags[0] = 0;
+		all.begin();		
+	}
+	
+},100);
+*/
+
+
 function inject_ports(){
 	
 	
