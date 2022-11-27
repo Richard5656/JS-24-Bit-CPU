@@ -40,10 +40,12 @@ int main(){
     //r_light(109);
     clear();
     //decdmp();\
-    russian_roulette(2603);
+    russian_roulette();
     //good seeds
     //2601
     //2603
+    //26025
+    //222341
 }
 
 int russian_roulette(){
