@@ -11,6 +11,10 @@ JavaScript was never meant to handle this so your browser might crash.
 
 (There has been an update 10/27/22): I have added the asm block in the compiler.
 
+(ADDED new instructions to the AST os 11/26/22): I have also added ASTs. 
+
+
+
 Put all of your suggestions and questions in the issues tab marked suggestions and questions.
 
 
