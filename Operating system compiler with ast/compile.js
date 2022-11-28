@@ -243,12 +243,12 @@ function compile(code) {
 
       } else if (tokens[this.index][1] == 0) {//function call and identifier parse
 		  
-		  if(tokens[this.index+1][2] != "("){//identifier direct acess parse
+		  if(tokens[this.index+1][2] != "(" && tokens[this.index+1][2] != "["){//identifier direct acess parse
 			ref.expr.push({type:"identifier_direct",name: tokens[this.index][2]});
 
 
 			 this.index++;
-		  }else{//function call parse
+		  }else if(tokens[this.index+1][2] == "("){//function call parse
 
 		    let token_id_call_buff = tokens[this.index][2];
 			ref.expr.push({type:"function_call",name: tokens[this.index][2],parameters:[]});
@@ -263,16 +263,13 @@ function compile(code) {
                     this.index++;
                 }
             }
-
-
-			
             this.match(")");
-
-
-
-
-
-
+		  }else if(tokens[this.index+1][2] == "["){
+			  	ref.expr.push({type:"identifier_direct_arr",name: tokens[this.index][2],expr:[]});
+				this.index++
+				this.match("[");
+				this.expr_pacg(ref.expr[ref.expr.length-1]);
+				this.match("]");
 		  }
 		 
       }else if(tokens[this.index][2] == "$"){
@@ -497,17 +494,21 @@ function compile(code) {
             this.match(";");
         }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "="){
 			ref.block.push({type:"identifier_write",name:tokens[this.index][2],expr:[]});
-
-
             this.index++;
-
             this.match("=");
             this.expr_pacg(ref.block[ref.block.length-1]);
-
-
             this.match(";");
        
-        }else if(tokens[this.index][2] == "bpa"){
+        }else if(tokens[this.index][1] == 0 && tokens[this.index+1][2] == "["){
+			ref.block.push({type:"identifier_write_arr",name:tokens[this.index][2],addr_access:{expr:[]},expr:[]});
+			this.index++;
+			this.match("[");
+			this.expr_pacg(ref.block[ref.block.length-1].addr_access);
+			this.match("]");
+            this.match("=");
+            this.expr_pacg(ref.block[ref.block.length-1]);
+            this.match(";");
+		}else if(tokens[this.index][2] == "bpa"){
 			ref.block.push({type:"bpa_write",offset:{expr:[]},value:{expr:[]}});
             this.match("bpa");
             this.match("[");
@@ -584,33 +585,44 @@ function compile(code) {
            if(tokens[this.index][2] == "int"){
 
                 this.match("int");
+				if(tokens[this.index+1][2] != "["){
+					this.ast.program.push({type:"int_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2]});
+					this.ast.sym_table[tokens[this.index][2]] = {type:"int_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2],scope:"global"};
+				        this.index++;
+						this.match("=");
+						this.index++;
+				}else{
+					this.ast.program.push({type:"int_var_array_global",name:tokens[this.index][2],array_entries: tokens[this.index+2][2]});
+					this.ast.sym_table[tokens[this.index][2]] = {type:"int_var_array_global",name:tokens[this.index][2],array_entries: tokens[this.index+2][2],scope:"global"};
+					this.index++;
+					this.match("[");
+					this.index++;
+					this.match("]");
+				}
 
-			    this.ast.program.push({type:"int_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2]});
-				this.ast.sym_table[tokens[this.index][2]] = {type:"int_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2],scope:"global"};
-                this.index++;
-                this.match("=");
-
-                 this.index++;
                 this.match(";");
+                
             }else if(tokens[this.index][2] == "char"){
 
                 this.match("char");
 
-				this.ast.program.push({type:"char_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2]});
-				this.ast.sym_table[tokens[this.index][2]] = {type:"char_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2],scope:"global"};
-                this.index++;
-                this.match("=");
-               
-                let byte_arr = new TextEncoder().encode(tokens[this.index][2]);
-               
-               
-                for(i =0; i< byte_arr.length; i++){
-
-                }
-               
-
-                this.index++;
-                this.match(";");    
+               if(tokens[this.index+1][2] != "["){
+						this.ast.program.push({type:"char_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2]});
+						this.ast.sym_table[tokens[this.index][2]] = {type:"char_var_global",name:tokens[this.index][2],value: tokens[this.index+2][2],scope:"global"};
+						this.index++;
+						this.match("=");
+						this.index++;
+			   }else{
+					this.ast.program.push({type:"char_var_array_global",name:tokens[this.index][2],array_entries: tokens[this.index+2][2]});
+					this.ast.sym_table[tokens[this.index][2]] = {type:"char_var_array_global",name:tokens[this.index][2],array_entries: tokens[this.index+2][2],scope:"global"};
+					this.index++;
+					this.match("[");
+					this.index++;
+					this.match("]");
+					
+				}   
+				
+				this.match(";");
             }
         }
     }
@@ -683,18 +695,18 @@ function compile(code) {
 					expt("IIPOP");
 					expt("PUSH");
 			  }else if(type == "arg_read"){
-				expt("IIPUSH");
-				expt("BPTOII");
-				expt("IIPUSH");
-				expt("LDAD 3");
-				expt("PUSH");
-				expt("ADD");
-				expr_gen(current_expr[pc_expr].expr);
-				expt("ADD");
-				expt("IIPOP");
-				expt("LDIIA");
-				expt("IIPOP");
-				expt("PUSH");
+					expt("IIPUSH");
+					expt("BPTOII");
+					expt("IIPUSH");
+					expt("LDAD 3");
+					expt("PUSH");
+					expt("ADD");
+					expr_gen(current_expr[pc_expr].expr);
+					expt("ADD");
+					expt("IIPOP");
+					expt("LDIIA");
+					expt("IIPOP");
+					expt("PUSH");
 			  }else if(type == "identifier_direct"){
 				expt("LDAM " + current_expr[pc_expr].name);
 				expt("PUSH");
@@ -714,6 +726,14 @@ function compile(code) {
 			  }else if(type == "identifier_mem_loc"){
 				expt("LDAD " + current_expr[pc_expr].name);
 				expt("PUSH");
+			  }else if(type == "identifier_direct_arr"){
+				  expt("LDAD " + current_expr[pc_expr].name);
+				  expt("PUSH");
+				  expr_gen(current_expr[pc_expr].expr);
+				  expt("ADD");
+				  expt("IPOP");
+				  expt("LDIA");
+				  expt("PUSH");
 			  }else if(type == "binary_1" || type == "binary_2"){
 				  let operations = {"*":"MUL", "/":"DIV", "<<":"LS", ">>":"RS","%":"MOD","^":"XOR","|":"OR","&":"AND","+":"ADD","-":"SUB"};
 				  expt(operations[current_expr[pc_expr].name]);
@@ -747,6 +767,15 @@ function compile(code) {
 					expr_gen(current_blk[pc_blk].expr);
 					expt("POP");
 					expt("STIIA");
+			  }else if(current_blk[pc_blk].type == "identifier_write_arr"){
+				  expt("LDAD " + current_blk[pc_blk].name);
+				  expt("PUSH");
+				  expr_gen(current_blk[pc_blk].addr_access.expr);
+				  expt("ADD");
+				  expt("IIPOP");
+				  expr_gen(current_blk[pc_blk].expr);
+				  expt("POP");
+				  expt("STIIA");
 			  }else if(current_blk[pc_blk].type == "if"){
 				  label_count++;
 				  let label_count_buffer = label_count;
@@ -796,6 +825,13 @@ function compile(code) {
             }
                
           expt("HLT 0");
+		}else if(program[pc].type == "int_var_array_global"){
+			expt("LABEL "+ program[pc].name);
+			expt("HLT 0\n".repeat(parseInt(program[pc].array_entries)));
+		}else if(program[pc].type == "char_var_array_global"){
+			expt("LABEL "+ program[pc].name);
+			expt("HLT 0\n".repeat(parseInt(program[pc].array_entries)));           
+			expt("HLT 0");
 		}else if(program[pc].name == "main"){
 			expt("LABEL main");
 			blk_gen(program[pc].block);
