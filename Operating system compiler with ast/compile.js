@@ -906,16 +906,9 @@ function compile(code) {
             }
         }
        
-        this.struct_pacg = () =>{
-            this.match("struct");
-            this.ast.sym_table[tokens[this.index][2]] = {
-                            type: "struct",
-                            name: tokens[this.index][2]
-                            inclusions:[]
-            };
            
            
-        }
+        
         this.func_pacg = () => {
             while (this.index < tokens.length && tokens[this.index][2] == "int") {
 
@@ -1055,6 +1048,10 @@ function compile(code) {
                         expt("LDAD " + sym_table[current_expr[pc_expr].name + "_" + scope].bpc);
                         expt("PUSH");
                         expt("SUB");
+						expt("POP");
+				        expt("IIPOP");
+						expt("PUSH");
+
                     }
                 } else if (type == "identifier_direct_arr") {
                     if (sym_table[current_expr[pc_expr].name + "_" + scope] == undefined) {
