@@ -722,17 +722,17 @@ function compile(code) {
                         ast_access_program_end().block.push({
                             type: "char_var_local_set",
                             name: tokens[this.index][2],
+							len:tokens[this.index+2][2].length,//len of val
                             value: tokens[this.index+2][2],
                             scope: ast_access_program_end().name,
                             bpc: ast_access_program_end().bpc
                         });
 
 
-
-
                         this.ast.sym_table[tokens[this.index][2] + "_" + ast_access_program_end().name] = {
                             type: "char_var_local",
                             name: tokens[this.index][2] + "_" + ast_access_program_end().name,
+							len:tokens[this.index+2][2].length,//len of val
                             scope: ast_access_program_end().name,
                             bpc: ast_access_program_end().bpc
 
@@ -1042,16 +1042,28 @@ function compile(code) {
                         expt("LDAD " + current_expr[pc_expr].name);
                         expt("PUSH");
                     } else {
-                        expt("IIPUSH");
-                        expt("BPTOII");
-                        expt("IIPUSH");
-                        expt("LDAD " + sym_table[current_expr[pc_expr].name + "_" + scope].bpc);
-                        expt("PUSH");
-                        expt("SUB");
-						expt("POP");
-				        expt("IIPOP");
-						expt("PUSH");
-
+						if(sym_table[current_expr[pc_expr].name + "_" + scope].type == "char_var_local"){
+							expt("IIPUSH");
+							expt("BPTOII");
+							expt("IIPUSH");
+							expt("LDAD " + sym_table[current_expr[pc_expr].name + "_" + scope].bpc +  sym_table[current_expr[pc_expr].name + "_" + scope].len);
+							console.log(sym_table[current_expr[pc_expr].name + "_" + scope].bpc +  sym_table[current_expr[pc_expr].name + "_" + scope].len);
+							expt("PUSH");
+							expt("SUB");
+							expt("POP");
+							expt("IIPOP");
+							expt("PUSH");
+						}else{
+							expt("IIPUSH");
+							expt("BPTOII");
+							expt("IIPUSH");
+							expt("LDAD " + sym_table[current_expr[pc_expr].name + "_" + scope].bpc);
+							expt("PUSH");
+							expt("SUB");
+							expt("POP");
+							expt("IIPOP");
+							expt("PUSH");
+						}
                     }
                 } else if (type == "identifier_direct_arr") {
                     if (sym_table[current_expr[pc_expr].name + "_" + scope] == undefined) {
@@ -1206,10 +1218,18 @@ function compile(code) {
                 expt("LDAD " + sym_table[current_blk[pc_blk].name + "_" + scope].bpc);
                 expt("PUSH");
                 expt("SUB");
-                let byte_arr = new TextEncoder().encode(current_blk[pc_blk].value);
-                for (i = 0; i < byte_arr.length; i++) {
+                let byte_arr = new TextEncoder().encode(current_blk[pc_blk].value.split("").reverse().join(''));
+				
+                    expt("IIPOP");
+                    expt("LDAD 0");
+                    expt("STIIA");
+                    expt("IIPUSH ");
+                    expt("LDAD 1");
+                    expt("PUSH");
+                    expt("SUB");			
 
-                   
+					
+                for (i = 0; i < byte_arr.length; i++) {
                     expt("IIPOP");
                     expt("LDAD " + byte_arr[i]);
                     expt("STIIA");
@@ -1218,13 +1238,7 @@ function compile(code) {
                     expt("PUSH");
                     expt("SUB");
                 }                  
-                    expt("IIPOP");
-                    expt("LDAD 0");
-                    expt("STIIA");
-                    expt("IIPUSH ");
-                    expt("LDAD 1");
-                    expt("PUSH");
-                    expt("SUB");
+
                 }else if (current_blk[pc_blk].type == "return") {
                     expr_gen(current_blk[pc_blk].expr, scope);
                     expt("POP");
